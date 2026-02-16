@@ -1,5 +1,6 @@
 import type { ResumeData } from '../../types/resume';
 import { Plus, Trash2 } from 'lucide-react';
+import GuidanceInput from './GuidanceInput';
 
 
 interface ResumeFormProps {
@@ -249,17 +250,16 @@ export default function ResumeForm({ data, updateData }: ResumeFormProps) {
                                         }}
                                     />
                                 </div>
-                                <textarea
-                                    placeholder="Description (bullet points not yet implemented, just text for now)"
-                                    className="w-full p-2 rounded bg-background border border-border/50 text-sm md:col-span-2 h-20"
-                                    value={exp.description[0]} // Simplification for now
-                                    onChange={(e) => {
+                                <GuidanceInput
+                                    value={exp.description[0]}
+                                    onChange={(val) => {
                                         const newExp = [...data.experience];
-                                        newExp[index].description = [e.target.value];
+                                        newExp[index].description = [val];
                                         handleSimpleField('experience', newExp);
                                     }}
-                                />
-                            </div>
+                                    placeholder="Description (e.g. Led a team of 5 developers...)"
+                                    className="md:col-span-2 h-24"
+                                />         </div>
                         </div>
                     ))}
                 </div>
@@ -309,15 +309,15 @@ export default function ResumeForm({ data, updateData }: ResumeFormProps) {
                                         handleSimpleField('projects', newProj);
                                     }}
                                 />
-                                <textarea
-                                    placeholder="Description"
-                                    className="w-full p-2 rounded bg-background border border-border/50 text-sm md:col-span-2 h-16"
+                                <GuidanceInput
                                     value={proj.description}
-                                    onChange={(e) => {
+                                    onChange={(val) => {
                                         const newProj = [...data.projects];
-                                        newProj[index].description = e.target.value;
+                                        newProj[index].description = val;
                                         handleSimpleField('projects', newProj);
                                     }}
+                                    placeholder="Description (e.g. Built a full-stack app using React...)"
+                                    className="md:col-span-2 h-20"
                                 />
                                 <input
                                     type="text" placeholder="Skills (comma separated)"
