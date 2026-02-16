@@ -9,86 +9,90 @@ export function calculateScore(data: ResumeData): ScoreResult {
     let score = 0;
     const suggestions: string[] = [];
 
-    // 1. Summary length 40-120 words (+15)
-    const summaryWordCount = data.summary.trim().split(/\s+/).filter(w => w.length > 0).length;
-    if (summaryWordCount >= 40 && summaryWordCount <= 120) {
+    // 1. Name provided (+10)
+    if (data.personalInfo.fullName) {
+        score += 10;
+    } else {
+        suggestions.push("Add your full name (+10 points)");
+    }
+
+    // 2. Email provided (+10)
+    if (data.personalInfo.email) {
+        score += 10;
+    } else {
+        suggestions.push("Add a professional email (+10 points)");
+    }
+
+    // 3. Summary > 50 characters (+10)
+    if (data.summary && data.summary.length > 50) {
+        score += 10;
+    } else {
+        suggestions.push("Expand your summary (min 50 chars) (+10 points)");
+    }
+
+    // 4. At least 1 experience entry with bullets (+15)
+    const hasExperience = data.experience.length > 0;
+    const hasBullets = data.experience.some(exp => exp.description.length > 0 && exp.description.some(d => d.trim().length > 0));
+
+    if (hasExperience && hasBullets) {
         score += 15;
     } else {
-        suggestions.push("Write a stronger summary (40–120 words).");
+        suggestions.push("Add at least 1 work experience with bullet points (+15 points)");
     }
 
-    // 2. Projects >= 2 (+10)
-    if (data.projects.length >= 2) {
+    // 5. At least 1 education entry (+10)
+    if (data.education.length > 0) {
         score += 10;
     } else {
-        suggestions.push("Add at least 2 projects.");
+        suggestions.push("Add your education details (+10 points)");
     }
 
-    // 3. Experience >= 1 (+10)
-    if (data.experience.length >= 1) {
+    // 6. At least 5 skills added (+10)
+    const totalSkills = data.skills.technical.length + data.skills.soft.length + data.skills.tools.length;
+    if (totalSkills >= 5) {
         score += 10;
     } else {
-        suggestions.push("Add at least 1 experience entry.");
+        suggestions.push(`Add more skills (current: ${totalSkills}, target: 5+) (+10 points)`);
     }
 
-    // 4. Skills >= 8 (+10)
-    if (data.skills.length >= 8) {
+    // 7. At least 1 project added (+10)
+    if (data.projects.length >= 1) {
         score += 10;
     } else {
-        suggestions.push("Add more skills (target 8+).");
+        suggestions.push("Add at least one key project (+10 points)");
     }
 
-    // 5. GitHub or LinkedIn link exists (+10)
-    if (data.personalInfo.linkedin || data.personalInfo.github) {
+    // 8. Phone provided (+5)
+    if (data.personalInfo.phone) {
+        score += 5;
+    } else {
+        suggestions.push("Include a phone number (+5 points)");
+    }
+
+    // 9. LinkedIn provided (+5)
+    if (data.personalInfo.linkedin) {
+        score += 5;
+    } else {
+        suggestions.push("Add your LinkedIn profile (+5 points)");
+    }
+
+    // 10. GitHub provided (+5)
+    if (data.personalInfo.github) {
+        score += 5;
+    } else {
+        suggestions.push("Add your GitHub profile (+5 points)");
+    }
+
+    // 11. Summary contains action verbs (+10)
+    const actionVerbs = ['built', 'led', 'designed', 'improved', 'developed', 'managed', 'created', 'implemented', 'optimized', 'architected'];
+    const summaryLower = data.summary.toLowerCase();
+    const hasActionVerb = actionVerbs.some(verb => summaryLower.includes(verb));
+
+    if (hasActionVerb) {
         score += 10;
     } else {
-        suggestions.push("Add a LinkedIn or GitHub link.");
+        suggestions.push("Use action verbs in summary (e.g., Led, Built, Designed) (+10 points)");
     }
-
-    // 6. Experience/Project bullets contain numbers (+15)
-    // Check if any bullet point in experience contains a number
-    const hasNumbers = data.experience.some(exp =>
-        exp.description.some(bullet => /\d/.test(bullet))
-    ) || data.projects.some(proj => /\d/.test(proj.description));
-
-    if (hasNumbers) {
-        score += 15;
-    } else {
-        suggestions.push("Add measurable impact (numbers) in bullets.");
-    }
-
-    // 7. Education complete (+10)
-    // Check if at least one education entry has all fields filled
-    const hasCompleteEducation = data.education.some(edu =>
-        edu.institution && edu.degree && edu.startDate && edu.endDate
-    );
-    if (hasCompleteEducation) {
-        score += 10;
-    } else {
-        suggestions.push("Complete at least one education entry.");
-    }
-
-    // Cap at 100
-    score = Math.min(100, score);
-
-    // Base score to not discourage users too much? 
-    // The user prompt implied 0-100 based on these rules. 
-    // Let's ensure the rules sum up to 100?
-    // 15 + 10 + 10 + 10 + 10 + 15 + 10 = 80.
-    // The user rules sum to 80. 
-    // Let's add specific weighting or just cap at 100 (if they exceed, though max is 80 currently).
-    // Wait, I should double check user request math.
-    // +15 (summary)
-    // +10 (2 projects)
-    // +10 (1 experience)
-    // +10 (8 skills)
-    // +10 (links)
-    // +15 (numbers)
-    // +10 (education)
-    // Total = 80.
-    // Missing 20 points to reach 100.
-    // I'll add a "Base Score" of 20 for starting.
-    score += 20;
 
     return { score: Math.min(100, score), suggestions };
 }

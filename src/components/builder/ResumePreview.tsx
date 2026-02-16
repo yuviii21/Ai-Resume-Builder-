@@ -7,9 +7,10 @@ interface ResumePreviewProps {
     data: ResumeData;
     className?: string; // Additional classes for wrapper
     template?: TemplateType;
+    color?: string;
 }
 
-export default function ResumePreview({ data, className = '', template = 'classic' }: ResumePreviewProps) {
+export default function ResumePreview({ data, className = '', template = 'classic', color = 'hsl(168, 60%, 40%)' }: ResumePreviewProps) {
     const { personalInfo, summary, experience, education, projects, skills } = data;
 
     // Helper to render contact icons
@@ -33,7 +34,7 @@ export default function ResumePreview({ data, className = '', template = 'classi
                 ${isModern ? 'bg-gray-900 text-white p-8' : 'border-b-2 border-black pb-4 mb-6'}
                 ${isMinimal ? 'text-center border-b-0 pb-0 mb-8' : ''}
             `}>
-                <h1 className={`text-4xl font-bold uppercase tracking-tight mb-2 ${isMinimal ? 'font-serif tracking-widest' : ''}`}>
+                <h1 className={`text-4xl font-bold uppercase tracking-tight mb-2 ${isMinimal ? 'font-serif tracking-widest' : ''}`} style={{ color: isModern ? 'white' : color }}>
                     {personalInfo.fullName || 'Your Name'}
                 </h1>
 
@@ -71,13 +72,40 @@ export default function ResumePreview({ data, className = '', template = 'classi
                 {isModern && (
                     <aside className="w-1/3 p-8 bg-gray-50 border-r border-gray-100 space-y-8">
                         {/* Skills */}
-                        {skills.length > 0 && skills.some(s => s.trim()) && (
+                        {(skills.technical.length > 0 || skills.soft.length > 0 || skills.tools.length > 0) && (
                             <section>
-                                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-3 border-b-2 border-gray-900 pb-1">Skills</h2>
-                                <div className="flex flex-wrap gap-2 text-sm text-gray-800">
-                                    {skills.filter(s => s.trim()).map((skill, index) => (
-                                        <span key={index} className="bg-white px-2 py-1 rounded border border-gray-200 block w-full text-center">{skill}</span>
-                                    ))}
+                                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-3 border-b-2 border-gray-900 pb-1" style={{ borderColor: color, color: color }}>Skills</h2>
+                                <div className="space-y-4">
+                                    {skills.technical.length > 0 && (
+                                        <div>
+                                            <h3 className="text-xs font-semibold text-gray-500 mb-1">Technical</h3>
+                                            <div className="flex flex-wrap gap-2 text-sm text-gray-800">
+                                                {skills.technical.map((skill, index) => (
+                                                    <span key={index} className="bg-white px-2 py-1 rounded border border-gray-200 block w-full text-center">{skill}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {skills.tools.length > 0 && (
+                                        <div>
+                                            <h3 className="text-xs font-semibold text-gray-500 mb-1">Tools</h3>
+                                            <div className="flex flex-wrap gap-2 text-sm text-gray-800">
+                                                {skills.tools.map((skill, index) => (
+                                                    <span key={index} className="bg-white px-2 py-1 rounded border border-gray-200 block w-full text-center">{skill}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {skills.soft.length > 0 && (
+                                        <div>
+                                            <h3 className="text-xs font-semibold text-gray-500 mb-1">Soft Skills</h3>
+                                            <div className="flex flex-wrap gap-2 text-sm text-gray-800">
+                                                {skills.soft.map((skill, index) => (
+                                                    <span key={index} className="bg-white px-2 py-1 rounded border border-gray-200 block w-full text-center">{skill}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </section>
                         )}
@@ -85,7 +113,7 @@ export default function ResumePreview({ data, className = '', template = 'classi
                         {/* Education (Modern Sidebar) */}
                         {education.length > 0 && (
                             <section>
-                                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-3 border-b-2 border-gray-900 pb-1">Education</h2>
+                                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-3 border-b-2 border-gray-900 pb-1" style={{ borderColor: color, color: color }}>Education</h2>
                                 <div className="space-y-4">
                                     {education.map((edu) => (
                                         <div key={edu.id}>
@@ -113,7 +141,7 @@ export default function ResumePreview({ data, className = '', template = 'classi
                                 text-sm font-bold uppercase tracking-wider mb-2 
                                 ${isModern ? 'text-gray-900 border-b-2 border-gray-900 pb-1' : 'border-b border-gray-300'}
                                 ${isMinimal ? 'border-b-0 text-xs tracking-[0.2em] text-gray-400 mb-4' : ''}
-                            `}>Profile</h2>
+                            `} style={{ borderColor: isModern ? color : undefined, color: isModern ? color : undefined }}>Profile</h2>
                             <p className="text-sm leading-relaxed text-gray-800">{summary}</p>
                         </section>
                     )}
@@ -125,7 +153,7 @@ export default function ResumePreview({ data, className = '', template = 'classi
                                 text-sm font-bold uppercase tracking-wider mb-3
                                 ${isModern ? 'text-gray-900 border-b-2 border-gray-900 pb-1' : 'border-b border-gray-300'}
                                 ${isMinimal ? 'text-center border-b-0 text-xs tracking-[0.2em] text-gray-400 mb-6' : ''}
-                            `}>Experience</h2>
+                            `} style={{ borderColor: isModern ? color : undefined, color: isModern ? color : undefined }}>Experience</h2>
                             <div className={`space-y-4 ${isMinimal ? 'space-y-8' : ''}`}>
                                 {experience.map((exp) => (
                                     <div key={exp.id}>
@@ -152,13 +180,24 @@ export default function ResumePreview({ data, className = '', template = 'classi
                                 text-sm font-bold uppercase tracking-wider mb-3
                                 ${isModern ? 'text-gray-900 border-b-2 border-gray-900 pb-1' : 'border-b border-gray-300'}
                                 ${isMinimal ? 'text-center border-b-0 text-xs tracking-[0.2em] text-gray-400 mb-6 mt-8' : ''}
-                            `}>Projects</h2>
+                            `} style={{ borderColor: isModern ? color : undefined, color: isModern ? color : undefined }}>Projects</h2>
                             <div className={`space-y-3 ${isMinimal ? 'space-y-6' : ''}`}>
                                 {projects.map((proj) => (
                                     <div key={proj.id}>
                                         <div className={`flex justify-between items-baseline mb-1 ${isMinimal ? 'flex-col items-center text-center' : ''}`}>
-                                            <h3 className="font-bold text-base">{proj.name}</h3>
-                                            {proj.link && <span className="text-xs text-blue-600 truncate max-w-[200px]">{proj.link}</span>}
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="font-bold text-base">{proj.name}</h3>
+                                                <div className="flex gap-2 print:hidden">
+                                                    {proj.link && <a href={proj.link} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary"><MapPin className="w-3 h-3" /></a>} {/* Using MapPin temporarily as globe, need key */}
+                                                    {proj.github && <a href={proj.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary"><Github className="w-3 h-3" /></a>}
+                                                </div>
+                                            </div>
+                                            {(proj.link || proj.github) && (
+                                                <div className="hidden print:flex gap-3 text-xs text-gray-500">
+                                                    {proj.link && <span>{proj.link}</span>}
+                                                    {proj.github && <span>GD: {proj.github}</span>}
+                                                </div>
+                                            )}
                                         </div>
                                         <p className={`text-sm mb-1 ${isMinimal ? 'text-center' : ''}`}>{proj.description}</p>
                                         {proj.technologies.length > 0 && (
@@ -178,7 +217,7 @@ export default function ResumePreview({ data, className = '', template = 'classi
                             <h2 className={`
                                 text-sm font-bold uppercase tracking-wider mb-3
                                 ${isMinimal ? 'text-center border-b-0 text-xs tracking-[0.2em] text-gray-400 mb-6 mt-8' : 'border-b border-gray-300'}
-                            `}>Education</h2>
+                            `} style={{ borderColor: !isMinimal ? color : undefined, color: !isMinimal ? color : undefined }}>Education</h2>
                             <div className={`space-y-3 ${isMinimal ? 'text-center space-y-6' : ''}`}>
                                 {education.map((edu) => (
                                     <div key={edu.id}>
@@ -194,20 +233,44 @@ export default function ResumePreview({ data, className = '', template = 'classi
                     )}
 
                     {/* Skills (Classic/Minimal Position) */}
-                    {(!isModern && skills.length > 0 && skills.some(s => s.trim())) && (
+                    {(!isModern && (skills.technical.length > 0 || skills.soft.length > 0 || skills.tools.length > 0)) && (
                         <section>
                             <h2 className={`
                                 text-sm font-bold uppercase tracking-wider mb-3
                                 ${isMinimal ? 'text-center border-b-0 text-xs tracking-[0.2em] text-gray-400 mb-6 mt-8' : 'border-b border-gray-300'}
-                            `}>Skills</h2>
-                            <div className={`flex flex-wrap gap-2 text-sm text-gray-800 ${isMinimal ? 'justify-center gap-4' : ''}`}>
-                                {skills.filter(s => s.trim()).map((skill, index) => (
-                                    <span key={index} className={`
-                                        ${isMinimal ? 'border-b border-gray-300 pb-0.5' : 'bg-gray-100 px-2 py-0.5 rounded border border-gray-200'}
-                                    `}>
-                                        {skill}
-                                    </span>
-                                ))}
+                            `} style={{ borderColor: !isMinimal ? color : undefined, color: !isMinimal ? color : undefined }}>Skills</h2>
+
+                            <div className={`space-y-3 ${isMinimal ? 'text-center' : ''}`}>
+                                {skills.technical.length > 0 && (
+                                    <div className={`flex gap-2 text-sm ${isMinimal ? 'justify-center flex-col gap-1' : ''}`}>
+                                        <strong className="min-w-[100px] text-gray-700">Technical:</strong>
+                                        <div className={`flex flex-wrap gap-2 ${isMinimal ? 'justify-center' : ''}`}>
+                                            {skills.technical.map((s, i) => (
+                                                <span key={i} className={isMinimal ? 'text-gray-600' : 'text-gray-800'}>{s}{i < skills.technical.length - 1 ? (isMinimal ? ' • ' : ',') : ''}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {skills.tools.length > 0 && (
+                                    <div className={`flex gap-2 text-sm ${isMinimal ? 'justify-center flex-col gap-1' : ''}`}>
+                                        <strong className="min-w-[100px] text-gray-700">Tools:</strong>
+                                        <div className={`flex flex-wrap gap-2 ${isMinimal ? 'justify-center' : ''}`}>
+                                            {skills.tools.map((s, i) => (
+                                                <span key={i} className={isMinimal ? 'text-gray-600' : 'text-gray-800'}>{s}{i < skills.tools.length - 1 ? (isMinimal ? ' • ' : ',') : ''}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {skills.soft.length > 0 && (
+                                    <div className={`flex gap-2 text-sm ${isMinimal ? 'justify-center flex-col gap-1' : ''}`}>
+                                        <strong className="min-w-[100px] text-gray-700">Soft Skills:</strong>
+                                        <div className={`flex flex-wrap gap-2 ${isMinimal ? 'justify-center' : ''}`}>
+                                            {skills.soft.map((s, i) => (
+                                                <span key={i} className={isMinimal ? 'text-gray-600' : 'text-gray-800'}>{s}{i < skills.soft.length - 1 ? (isMinimal ? ' • ' : ',') : ''}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </section>
                     )}

@@ -31,8 +31,13 @@ export interface ResumeData {
         description: string;
         technologies: string[];
         link?: string;
+        github?: string;
     }[];
-    skills: string[];
+    skills: {
+        technical: string[];
+        soft: string[];
+        tools: string[];
+    };
 }
 
 export const initialResumeData: ResumeData = {
@@ -49,7 +54,11 @@ export const initialResumeData: ResumeData = {
     education: [],
     experience: [],
     projects: [],
-    skills: [],
+    skills: {
+        technical: [],
+        soft: [],
+        tools: []
+    },
 };
 
 export const sampleData: ResumeData = {
@@ -96,8 +105,13 @@ export const sampleData: ResumeData = {
             name: 'TaskMaster AI',
             description: 'A productivity application that uses AI to categorize and prioritize tasks automatically.',
             technologies: ['React', 'Node.js', 'OpenAI API'],
-            link: 'taskmaster.ai'
+            link: 'taskmaster.ai',
+            github: 'github.com/alexmorgan/taskmaster'
         }
     ],
-    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Node.js', 'GraphQL', 'Figma', 'Git']
+    skills: {
+        technical: ['React', 'TypeScript', 'Tailwind CSS', 'Node.js', 'GraphQL'],
+        soft: ['Leadership', 'Problem Solving', 'Communication'],
+        tools: ['Git', 'Figma', 'Docker']
+    }
 };

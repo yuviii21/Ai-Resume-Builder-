@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import type { ResumeData } from '../../types/resume';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Sparkles, ChevronDown } from 'lucide-react';
 import GuidanceInput from './GuidanceInput';
+import TagInput from './TagInput';
 
 
 interface ResumeFormProps {
@@ -9,6 +11,7 @@ interface ResumeFormProps {
 }
 
 export default function ResumeForm({ data, updateData }: ResumeFormProps) {
+    const [isSuggesting, setIsSuggesting] = useState(false);
 
     const handleChange = (section: keyof ResumeData, field: string, value: any) => {
         updateData({
@@ -272,7 +275,7 @@ export default function ResumeForm({ data, updateData }: ResumeFormProps) {
                         <span className="w-1 h-6 bg-primary rounded-full" /> Projects
                     </h3>
                     <button
-                        onClick={() => addItem('projects', { name: '', description: '', technologies: [] })}
+                        onClick={() => addItem('projects', { name: 'New Project', description: '', technologies: [], link: '', github: '' })}
                         className="p-1 px-3 bg-primary/10 text-primary rounded-md text-sm hover:bg-primary/20 flex items-center gap-1"
                     >
                         <Plus className="w-4 h-4" /> Add
@@ -281,54 +284,102 @@ export default function ResumeForm({ data, updateData }: ResumeFormProps) {
 
                 <div className="space-y-4">
                     {data.projects.map((proj, index) => (
-                        <div key={proj.id} className="p-3 bg-secondary/30 rounded border border-border/50 relative group">
-                            <button
-                                onClick={() => removeItem('projects', proj.id)}
-                                className="absolute top-2 right-2 text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-destructive/10 rounded"
+                        <div key={proj.id} className="bg-secondary/30 rounded border border-border/50 overflow-hidden">
+                            <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                                onClick={() => {
+                                    // Simple toggle logic could be added here if we had local state for expanded items
+                                    // For now, let's keep them all open or use a simple detail/summary approach if preferred.
+                                    // But user asked for collapsible. Let's make it a controlled accordion or individual state?
+                                    // Since I can't easily add local state for *each* item without a sub-component, 
+                                    // I'll wrap this in a details/summary element for native behavior!
+                                }}
                             >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-8">
-                                <input
-                                    type="text" placeholder="Project Name"
-                                    className="w-full p-2 rounded bg-background border border-border/50 text-sm"
-                                    value={proj.name}
-                                    onChange={(e) => {
-                                        const newProj = [...data.projects];
-                                        newProj[index].name = e.target.value;
-                                        handleSimpleField('projects', newProj);
-                                    }}
-                                />
-                                <input
-                                    type="text" placeholder="Link"
-                                    className="w-full p-2 rounded bg-background border border-border/50 text-sm"
-                                    value={proj.link}
-                                    onChange={(e) => {
-                                        const newProj = [...data.projects];
-                                        newProj[index].link = e.target.value;
-                                        handleSimpleField('projects', newProj);
-                                    }}
-                                />
-                                <GuidanceInput
-                                    value={proj.description}
-                                    onChange={(val) => {
-                                        const newProj = [...data.projects];
-                                        newProj[index].description = val;
-                                        handleSimpleField('projects', newProj);
-                                    }}
-                                    placeholder="Description (e.g. Built a full-stack app using React...)"
-                                    className="md:col-span-2 h-20"
-                                />
-                                <input
-                                    type="text" placeholder="Skills (comma separated)"
-                                    className="w-full p-2 rounded bg-background border border-border/50 text-sm md:col-span-2"
-                                    value={proj.technologies.join(', ')}
-                                    onChange={(e) => {
-                                        const newProj = [...data.projects];
-                                        newProj[index].technologies = e.target.value.split(',').map(s => s.trim()).filter(s => s);
-                                        handleSimpleField('projects', newProj);
-                                    }}
-                                />
+                                <details className="w-full group" open>
+                                    <summary className="flex items-center justify-between font-medium cursor-pointer list-none">
+                                        <span>{proj.name || 'Untitled Project'}</span>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault(); // Prevent toggle
+                                                    removeItem('projects', proj.id);
+                                                }}
+                                                className="text-destructive hover:bg-destructive/10 p-1 rounded"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                                        </div>
+                                    </summary>
+
+                                    <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <input
+                                            type="text" placeholder="Project Title"
+                                            className="w-full p-2 rounded bg-background border border-border/50 text-sm md:col-span-2 font-bold"
+                                            value={proj.name}
+                                            onChange={(e) => {
+                                                const newProj = [...data.projects];
+                                                newProj[index].name = e.target.value;
+                                                handleSimpleField('projects', newProj);
+                                            }}
+                                        />
+                                        <input
+                                            type="text" placeholder="Live URL (optional)"
+                                            className="w-full p-2 rounded bg-background border border-border/50 text-sm"
+                                            value={proj.link}
+                                            onChange={(e) => {
+                                                const newProj = [...data.projects];
+                                                newProj[index].link = e.target.value;
+                                                handleSimpleField('projects', newProj);
+                                            }}
+                                        />
+                                        <input
+                                            type="text" placeholder="GitHub URL (optional)"
+                                            className="w-full p-2 rounded bg-background border border-border/50 text-sm"
+                                            value={proj.github || ''}
+                                            onChange={(e) => {
+                                                const newProj = [...data.projects];
+                                                newProj[index].github = e.target.value;
+                                                handleSimpleField('projects', newProj);
+                                            }}
+                                        />
+                                        <div className="md:col-span-2">
+                                            <GuidanceInput
+                                                value={proj.description}
+                                                onChange={(val) => {
+                                                    // Max 200 chars enforcement
+                                                    if (val.length <= 200) {
+                                                        const newProj = [...data.projects];
+                                                        newProj[index].description = val;
+                                                        handleSimpleField('projects', newProj);
+                                                    }
+                                                }}
+                                                placeholder="Description (max 200 chars)"
+                                                className="h-20"
+                                            />
+                                            <div className="text-xs text-right text-muted-foreground mt-1">
+                                                {proj.description.length}/200
+                                            </div>
+                                        </div>
+
+                                        <div className="md:col-span-2">
+                                            <label className="text-xs font-semibold uppercase tracking-wider mb-1 block text-muted-foreground">Tech Stack</label>
+                                            <TagInput
+                                                tags={proj.technologies}
+                                                onAdd={(tag) => {
+                                                    const newProj = [...data.projects];
+                                                    newProj[index].technologies = [...proj.technologies, tag];
+                                                    handleSimpleField('projects', newProj);
+                                                }}
+                                                onRemove={(tag) => {
+                                                    const newProj = [...data.projects];
+                                                    newProj[index].technologies = proj.technologies.filter(t => t !== tag);
+                                                    handleSimpleField('projects', newProj);
+                                                }}
+                                                placeholder="Add tech (e.g. React, Node.js)"
+                                            />
+                                        </div>
+                                    </div>
+                                </details>
                             </div>
                         </div>
                     ))}
@@ -337,18 +388,73 @@ export default function ResumeForm({ data, updateData }: ResumeFormProps) {
 
             {/* Skills */}
             <section className="space-y-4 p-4 border border-border/50 rounded-lg bg-card/50">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <span className="w-1 h-6 bg-primary rounded-full" /> Skills
-                </h3>
-                <textarea
-                    placeholder="List your skills separated by commas..."
-                    className="w-full p-3 min-h-[100px] rounded-md bg-secondary/50 border border-border focus:ring-2 focus:ring-primary/20 outline-none"
-                    value={data.skills.join(', ')}
-                    onChange={(e) => {
-                        const skills = e.target.value.split(',').map(s => s.trim());
-                        handleSimpleField('skills', skills);
-                    }}
-                />
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <span className="w-1 h-6 bg-primary rounded-full" /> Skills
+                    </h3>
+                    <button
+                        onClick={() => {
+                            setIsSuggesting(true);
+                            setTimeout(() => {
+                                updateData({
+                                    ...data,
+                                    skills: {
+                                        technical: [...new Set([...data.skills.technical, "TypeScript", "React", "Node.js", "PostgreSQL", "GraphQL"])],
+                                        soft: [...new Set([...data.skills.soft, "Team Leadership", "Problem Solving"])],
+                                        tools: [...new Set([...data.skills.tools, "Git", "Docker", "AWS"])]
+                                    }
+                                });
+                                setIsSuggesting(false);
+                            }, 1000);
+                        }}
+                        disabled={isSuggesting}
+                        className="px-3 py-1.5 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-md text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                    >
+                        <Sparkles className={`w-3.5 h-3.5 ${isSuggesting ? 'animate-spin' : ''}`} />
+                        {isSuggesting ? 'Thinking...' : 'Suggest Skills'}
+                    </button>
+                </div>
+
+                <div className="space-y-6">
+                    <div>
+                        <div className="flex justify-between mb-2">
+                            <label className="text-sm font-medium text-muted-foreground">Technical Skills</label>
+                            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">{data.skills.technical.length}</span>
+                        </div>
+                        <TagInput
+                            tags={data.skills.technical}
+                            onAdd={(tag) => updateData({ ...data, skills: { ...data.skills, technical: [...data.skills.technical, tag] } })}
+                            onRemove={(tag) => updateData({ ...data, skills: { ...data.skills, technical: data.skills.technical.filter(t => t !== tag) } })}
+                            placeholder="e.g. React, Python"
+                        />
+                    </div>
+
+                    <div>
+                        <div className="flex justify-between mb-2">
+                            <label className="text-sm font-medium text-muted-foreground">Soft Skills</label>
+                            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">{data.skills.soft.length}</span>
+                        </div>
+                        <TagInput
+                            tags={data.skills.soft}
+                            onAdd={(tag) => updateData({ ...data, skills: { ...data.skills, soft: [...data.skills.soft, tag] } })}
+                            onRemove={(tag) => updateData({ ...data, skills: { ...data.skills, soft: data.skills.soft.filter(t => t !== tag) } })}
+                            placeholder="e.g. Leadership, Communication"
+                        />
+                    </div>
+
+                    <div>
+                        <div className="flex justify-between mb-2">
+                            <label className="text-sm font-medium text-muted-foreground">Tools & Technologies</label>
+                            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">{data.skills.tools.length}</span>
+                        </div>
+                        <TagInput
+                            tags={data.skills.tools}
+                            onAdd={(tag) => updateData({ ...data, skills: { ...data.skills, tools: [...data.skills.tools, tag] } })}
+                            onRemove={(tag) => updateData({ ...data, skills: { ...data.skills, tools: data.skills.tools.filter(t => t !== tag) } })}
+                            placeholder="e.g. VS Code, Jira"
+                        />
+                    </div>
+                </div>
             </section>
 
         </div>
