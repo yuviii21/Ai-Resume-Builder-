@@ -1,55 +1,49 @@
-import { useBuildTrack } from '../../context/BuildTrackContext';
+import { Link, useLocation } from 'react-router-dom';
+import { FileText, Layout, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { CheckCircle, Circle, Lock } from 'lucide-react';
 
-export const TopBar = () => {
-    const { currentStep, steps } = useBuildTrack();
-    const stepIndex = steps.findIndex(s => s.id === currentStep.id) + 1;
-    const totalSteps = steps.filter(s => !s.isProof).length; // Exclude Proof step from count? Or include? "Step X of 8" implies 8 steps + proof. 
-    // User said "/rb/proof" and "Project 3 — Step X of 8".
-    // Steps are 01-08. So 8 steps. Proof is separate.
+export default function TopBar() {
+    const location = useLocation();
+
+    const navItems = [
+        { label: 'Builder', path: '/builder', icon: FileText },
+        { label: 'Preview', path: '/preview', icon: Layout },
+        { label: 'Proof', path: '/proof', icon: ShieldCheck },
+    ];
 
     return (
-        <header className="h-14 border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-6">
-            <div className="flex items-center gap-2 font-semibold text-lg tracking-tight">
-                <div className="size-6 rounded bg-white/10 flex items-center justify-center text-xs">AI</div>
-                <span>AI Resume Builder</span>
-            </div>
+        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+                <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
+                    <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
+                        <span className="text-lg">Ai</span>
+                    </div>
+                    <span>ResumeBuilder</span>
+                </Link>
 
-            <div className="absolute left-1/2 -translate-x-1/2 text-sm text-muted-foreground font-medium">
-                {currentStep.isProof ? (
-                    <span className="text-white">Project Completion</span>
-                ) : (
-                    <span>Project 3 — Step <span className="text-white">{stepIndex}</span> of {totalSteps}</span>
-                )}
-            </div>
+                <nav className="flex items-center gap-1">
+                    {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.path;
 
-            <div className="flex items-center gap-2">
-                <StatusBadge status={currentStep.status} />
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={cn(
+                                    "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                                    isActive
+                                        ? "bg-secondary text-foreground shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                                )}
+                            >
+                                <Icon className="w-4 h-4" />
+                                {item.label}
+                            </Link>
+                        );
+                    })}
+                </nav>
             </div>
         </header>
     );
-};
-
-const StatusBadge = ({ status }: { status: string }) => {
-    const styles = {
-        locked: "bg-zinc-800 text-zinc-400 border-zinc-700",
-        active: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-        completed: "bg-green-500/10 text-green-400 border-green-500/20",
-    };
-
-    const icons = {
-        locked: Lock,
-        active: Circle,
-        completed: CheckCircle,
-    };
-
-    const Icon = icons[status as keyof typeof icons] || Circle;
-
-    return (
-        <div className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border", styles[status as keyof typeof styles])}>
-            <Icon className="size-3.5" />
-            <span className="capitalize">{status}</span>
-        </div>
-    );
-};
+}
